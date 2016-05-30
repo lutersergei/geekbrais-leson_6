@@ -37,6 +37,8 @@ if (isset($_FILES['images']))
         <div class="col-md-8">
             <h1 style="text-align: center">Gallery</h1>
             <?php
+            if (isset($files_array))
+            {
             foreach ($files_array as $files)
             {
                 echo "<div class=\"col-xs-6 col-md-3\">
