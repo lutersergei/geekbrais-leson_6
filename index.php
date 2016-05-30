@@ -5,6 +5,8 @@ $folder=opendir($_SERVER['DOCUMENT_ROOT'].DIRECTORY_SEPARATOR.'img');
 if (isset($_FILES['images']))
 {
     move_uploaded_file($_FILES['images']['tmp_name'],$_SERVER['DOCUMENT_ROOT'].'/'.'img/'.$_FILES['images']['name']);
+    header("Location: index.php");
+    die();
 }
 ?>
 <!doctype html>
@@ -31,7 +33,6 @@ if (isset($_FILES['images']))
                 }
                 closedir($folder);
             }
-            else $files_array[]="";
             ?>
         </div>
         <div class="col-md-8">
@@ -39,11 +40,12 @@ if (isset($_FILES['images']))
             <?php
             if (isset($files_array))
             {
-            foreach ($files_array as $files)
-            {
-                echo "<div class=\"col-xs-6 col-md-3\">
+                foreach ($files_array as $files)
+                {
+                    echo "<div class=\"col-xs-6 col-md-3\">
                           <a class=\"thumbnail\" href=\"img/{$files}\" target=\"_blank\"><img src=\"img/{$files}\"></a>
                       </div>";
+                }
             }
             ?>
         </div>
