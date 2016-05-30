@@ -1,7 +1,14 @@
 <?php
 error_reporting(E_ALL);
-//Добавить проверку существования папки
-$folder=opendir($_SERVER['DOCUMENT_ROOT'].DIRECTORY_SEPARATOR.'img');
+//Проверкa существования папки
+$folder=false;
+if (!is_dir($_SERVER['DOCUMENT_ROOT'].DIRECTORY_SEPARATOR.'img'))
+{
+    mkdir($_SERVER['DOCUMENT_ROOT'].DIRECTORY_SEPARATOR.'img');
+    header("Location: index.php");
+    die();
+}
+else $folder=opendir($_SERVER['DOCUMENT_ROOT'].DIRECTORY_SEPARATOR.'img');
 if (isset($_FILES['images']))
 {
     move_uploaded_file($_FILES['images']['tmp_name'],$_SERVER['DOCUMENT_ROOT'].'/'.'img/'.$_FILES['images']['name']);
@@ -42,7 +49,7 @@ if (isset($_FILES['images']))
             {
                 foreach ($files_array as $files)
                 {
-                    echo "<div class=\"col-xs-6 col-md-3\">
+                    echo "<div class=\"col-xs-4 col-md-3\">
                           <a class=\"thumbnail\" href=\"img/{$files}\" target=\"_blank\"><img src=\"img/{$files}\"></a>
                       </div>";
                 }
