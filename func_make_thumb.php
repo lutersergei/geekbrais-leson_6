@@ -1,5 +1,5 @@
 <?php
-function makeThumbnails($updir, $img, $id,$MaxWe=300,$MaxHe=450){
+function makeThumbnails($updir, $img, $id,$MaxWe=500,$MaxHe=300){
     $arr_image_details = getimagesize($img);
     $width = $arr_image_details[0];
     $height = $arr_image_details[1];
@@ -38,8 +38,7 @@ function makeThumbnails($updir, $img, $id,$MaxWe=300,$MaxHe=450){
         $new_image = imagecreatetruecolor($newWidth, $newHeight);
         imagecopyresized($new_image, $old_image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
 
-        $imgt($new_image, $updir."".$id."_thumb.jpg");
+        $imgt($new_image, $updir."".$id);
         return;
     }
 }
-makeThumbnails('img/','img/1448462380_336353965.png',10);
