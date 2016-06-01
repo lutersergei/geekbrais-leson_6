@@ -1,17 +1,45 @@
 <?php
+session_start();
 error_reporting(E_ALL);
-//Проверкa существования папки
+define('MAX_SIZE', 5000000);
+define('DANGER_NOT_IMAGE','Файл не является изображением');
+define('DANGER_SIZE_EXCEEDED','Превышен максимальный размер файла');
+define('SUCCESS','Изображение успешно загружено');
 $folder=false;
+$result=false;
+include 'func_make_thumb.php';
+//Передача результата из сессии в переменную
+if (isset($_SESSION['result']))
+{
+    $result=$_SESSION['result'];
+    unset($_SESSION['result']);
+}
+//Проверкa существования папки (если её нет - создаем)
 if (!is_dir($_SERVER['DOCUMENT_ROOT'].DIRECTORY_SEPARATOR.'img'))
 {
     mkdir($_SERVER['DOCUMENT_ROOT'].DIRECTORY_SEPARATOR.'img');
+    mkdir($_SERVER['DOCUMENT_ROOT'].DIRECTORY_SEPARATOR.'img_thumbnails');
     header("Location: index.php");
     die();
 }
 else $folder=opendir($_SERVER['DOCUMENT_ROOT'].DIRECTORY_SEPARATOR.'img');
-if (isset($_FILES['images']))
-{
-    move_uploaded_file($_FILES['images']['tmp_name'],$_SERVER['DOCUMENT_ROOT'].'/'.'img/'.$_FILES['images']['name']);
+if ((isset($_FILES['images'])))
+{           //Проверка типа загружаемого файла
+    if (strpos($_FILES['images']['type'],"image")!==false)
+        {   //Проверка размера файла
+            if (($_FILES['images']['size'])<MAX_SIZE)
+            {
+                move_uploaded_file($_FILES['images']['tmp_name'],$_SERVER['DOCUMENT_ROOT'].'/'.'img/'.$_FILES['images']['name']);
+                makeThumbnails('img_thumbnails/','img/'.$_FILES['images']['name'],$_FILES['images']['name']);
+                $_SESSION['result']=SUCCESS;
+                header("Location: index.php");
+                die();
+            }
+            else $_SESSION['result']=DANGER_SIZE_EXCEEDED;
+            header("Location: index.php");
+            die();
+        }
+    else $_SESSION['result']=DANGER_NOT_IMAGE;
     header("Location: index.php");
     die();
 }
@@ -22,11 +50,14 @@ if (isset($_FILES['images']))
     <meta charset="UTF-8">
     <title>Gallery</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Josefin+Sans:700|Roboto+Mono:300' rel='stylesheet' type='text/css'>
 </head>
 <body>
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-2">
+        <div class="col-md-3 info">
+            <p>Техническая информация</p>
             <?php
             if ($folder!=false)
             {
@@ -42,23 +73,25 @@ if (isset($_FILES['images']))
             }
             ?>
         </div>
-        <div class="col-md-8">
-            <h1 style="text-align: center">Gallery</h1>
+        <div class="col-md-6">
+            <h1 class="title">Gallery (Pre-Alpha Version)</h1>
             <?php
             if (isset($files_array))
             {
                 foreach ($files_array as $files)
                 {
                     echo "<div class=\"col-xs-4 col-md-3\">
-                          <a class=\"thumbnail\" href=\"img/{$files}\" target=\"_blank\"><img src=\"img/{$files}\"></a>
+                          <a class=\"thumbnail\" href=\"img/{$files}\" target=\"_blank\"><img src=\"img_thumbnails/{$files}\"></a>
                       </div>";
                 }
             }
             ?>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-3 info">
+            <p>Техническая информация</p>
             <?php
             var_dump($_FILES);
+            var_dump($_SESSION);
             ?>
         </div>
     </div>
@@ -66,12 +99,14 @@ if (isset($_FILES['images']))
         <div class="col-md-3"></div>
         <div class="col-md-6">
             <h2>Загрузка файлов в галерею</h2>
+            <h4>Максимальный размер файла <?php echo MAX_SIZE/1000000?>Mb</h4>
             <form class="form-inline" action="" method="post" enctype="multipart/form-data">
                 <div class="form-group">
                     <input type="file" name="images">
                 </div>
-                <button type="submit" class="btn btn-default">Загрузить</button>
+                <button type="submit" class="btn btn-success">Загрузить</button>
             </form>
+            <h4><?php echo $result?></h4>
         </div>
         <div class="col-md-3"></div>
     </div>
